@@ -4,9 +4,9 @@ namespace App\Entity;
 
 class Users
 {
-    protected string $name;
-    protected array $role;
-    protected string $password;
+    public string $name;
+    public array $role;
+    public string $password;
 
     /**
      * @return string

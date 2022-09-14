@@ -4,9 +4,9 @@ namespace App\Entity;
 
 class Organization
 {
-    protected string $name;
-    protected string $description;
-    protected Users $users;
+    public string $name;
+    public string $description;
+    public $users;
 
     /**
      * @return string
@@ -43,7 +43,7 @@ class Organization
     /**
      * @return Users
      */
-    public function getUsers() : Users
+    public function getUsers() : array
     {
         return $this->users;
     }
@@ -51,7 +51,7 @@ class Organization
     /**
      * @param Users $users
      */
-    public function setUsers(Users $users) : void
+    public function setUsers(array $users) : void
     {
         $this->users = $users;
     }
