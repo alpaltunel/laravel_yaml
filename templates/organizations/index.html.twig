@@ -1,0 +1,46 @@
+<pre>
+    {#
+    #}
+    <table border=1 width="100%">
+        <tr>
+            <th width="10%">Name</th>
+            <th width="50%">Description</th>
+            <th width="15%">Users</th>
+            <th width="5%">Action</th>
+        </tr>
+    {% for organization in yaml.organizations %}
+        <tr>
+            <td>{{ organization.name }}</td>
+            <td>{{ organization.description }}</td>
+            <td>
+                <table>
+                    {% for user in organization.users %}
+                        <tr>
+                            <td>Name: </td>
+                            <td>{{ user.name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Role: </td>
+                            <td>
+                                {% for role in user.role %}
+                                    {{ role }}{% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Password: </td>
+                            <td>{{ user.password }}</td>
+                        </tr>
+
+                    {% endfor %}
+                </table>
+            </td>
+            <td>
+                <a href="/organizations/edit/{{ organization.name }}">Edit</a>
+                <a href="/organizations/delete/{{ organization.name }}">Delete</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    {{ dump(yaml.organizations) }}
+</pre>
