@@ -44,16 +44,15 @@ class OrganizationsController extends AbstractController
     ])]
     public function add(Request $request) : Response
     {
-        $organization = new Organization();
-
         if ($request->isMethod('POST'))
         {
-            $form = $this->createForm(OrganizationType::class, $organization);
+            // we will not use this because posting arrays is removed and we dont use any databases.
+            // $form = $this->createForm(OrganizationType::class, $organization);
             $post = $request->request->all()["organization"];
 
             $org = new Organization();
             $org->setName($post["name"]);
-            $org->setDescription($post["name"]);
+            $org->setDescription($post["description"]);
 
             // normally multiple users can be added from frontend side but this is just an sample project
             $user = new Users();
@@ -74,7 +73,7 @@ class OrganizationsController extends AbstractController
         else
         {
             // $form = $this->createFormBuilder($organization)->add('name', TextType::class, ['label' => 'Name of the Organization: '])->add('save', SubmitType::class, ['label' => 'Submit'])->getForm();
-
+            $organization = new Organization();
             $form = $this->createForm(OrganizationType::class, $organization);
 
             return $this->renderForm('organizations/add.html.twig', [
@@ -83,23 +82,70 @@ class OrganizationsController extends AbstractController
         }
     }
 
-    #[Route('/organizations/edit/{name}', name: 'app_organizations_edit', methods: ['GET'])]
-    public function edit(string $name) : Response
+    #[Route('/organizations/edit/{name}', name: 'app_organizations_edit', methods: [
+        'GET',
+        'POST',
+    ])]
+    public function edit(Request $request, string $name) : Response
     {
-        return $this->render('organizations/edit.html.twig', [
-            'name' => $name,
-            'data' => $this->findData($name),
+        if ($request->isMethod('POST'))
+        {
+            $post = $request->request->all()["organization"];
+
+            var_dump($post);
+            $org = new Organization();
+            $org->setName($post["name"]);
+            $org->setDescription($post["description"]);
+            $org->setUsers($post["users"]);
+
+            // dd($org);
+
+            $new_yaml = [];
+
+            for ($i = 0; $i < count($this->yaml["organizations"]); $i++)
+            {
+                if ($this->yaml["organizations"][$i]["name"] != $name)
+                {
+                    $new_yaml[] = $this->yaml["organizations"][$i];
+                }
+            }
+            $new_yaml[] = json_decode(json_encode($org), true);
+            // dd($new_yaml);
+            $this->yaml["organizations"] = $new_yaml;
+            $yaml = Yaml::dump($this->yaml);
+            file_put_contents($this->fileName, $yaml);
+
+            return $this->redirectToRoute('app_organizations');
+        }
+        $data = $this->findData($name);
+        if (is_array($data))
+        {
+            $organization = new Organization($data["name"], $data["description"], $data["users"]);
+        }
+        else
+        {
+            $organization = new Organization();
+        }
+        $form = $this->createForm(OrganizationType::class, $organization);
+
+        // $form = $this->createFormBuilder($organization);
+        return $this->renderForm('organizations/edit.html.twig', [
+            'form' => $form,
+            'name' => $name
         ]);
     }
 
     #[Route('/organizations/delete/{name}', name: 'app_organizations_delete', methods: ['GET'])]
     public function delete(string $name) : Response
     {
-        if(is_array($this->findData($name))) {
+        if (is_array($this->findData($name)))
+        {
             $new_yaml = [];
 
-            for($i=0;$i<count($this->yaml["organizations"]);$i++) {
-                if($this->yaml["organizations"][$i]["name"] != "$name") {
+            for ($i = 0; $i < count($this->yaml["organizations"]); $i++)
+            {
+                if ($this->yaml["organizations"][$i]["name"] != $name)
+                {
                     $new_yaml[] = $this->yaml["organizations"][$i];
                 }
             }
@@ -107,6 +153,7 @@ class OrganizationsController extends AbstractController
             $yaml = Yaml::dump($this->yaml);
             file_put_contents($this->fileName, $yaml);
         }
+
         return $this->redirectToRoute('app_organizations');
         /*
         a confirmation page can be implemented
@@ -118,11 +165,12 @@ class OrganizationsController extends AbstractController
     private function findData($name)
     {
         $ret = [];
-        for ($i = 0; $i < count($this->yaml); $i++)
+        for ($i = 0; $i < count($this->yaml["organizations"]); $i++)
         {
             if ($this->yaml["organizations"][$i]["name"] == $name)
             {
                 $ret = $this->yaml["organizations"][$i];
+                break;
             }
         }
 

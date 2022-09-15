@@ -6,7 +6,14 @@ class Organization
 {
     public string $name;
     public string $description;
-    public $users;
+    public array $users;
+
+    public function __construct($name = '', $description = '', $users = [])
+    {
+        $this->setName($name);
+        $this->setDescription($description);
+        $this->setUsers($users);
+    }
 
     /**
      * @return string

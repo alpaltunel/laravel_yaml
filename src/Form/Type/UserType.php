@@ -13,8 +13,7 @@ class UserType extends AbstractType
     {
         $builder
             ->add('name', TextType::class)
-            ->add('roles', RoleType::class)
-            ->add('password', TextType::class)
-        ;
+            ->add('role', RoleType::class)
+            ->add('password', TextType::class);
     }
 }
